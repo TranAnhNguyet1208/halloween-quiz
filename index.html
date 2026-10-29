@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đố Vui Tranh Biện - Halloween</title>
+  <link rel="icon" href="assets/pumpkin-glasses.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-screen="boot">
+  <!-- Nền trang trí (luôn nằm dưới nội dung), xếp lớp xa -> gần để tạo chiều sâu -->
+  <div class="bg" aria-hidden="true">
+    <div class="bg-night"></div>
+    <div class="bg-stars"></div>
+    <div class="bg-moon"></div>
+    <svg class="bg-web" id="bgWeb" viewBox="0 0 220 220"></svg>
+    <div class="bats">
+      <svg class="bat bat-1"><use href="#bat"/></svg>
+      <svg class="bat bat-2"><use href="#bat"/></svg>
+      <svg class="bat bat-3"><use href="#bat"/></svg>
+      <img class="bat-img" src="assets/ui/bat.webp" alt="">
+    </div>
+    <div class="bg-fog fog-1"></div>
+    <img class="bg-tree tree-left" src="assets/ui/tree-left.webp" alt="">
+    <img class="bg-tree tree-right" src="assets/ui/tree-right.webp" alt="">
+    <div class="bg-fog fog-2"></div>
+    <div class="bg-vignette"></div>
+  </div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="bat" viewBox="0 0 100 40">
+      <path d="M50 31c-3-4-4-8-4-11l-2-6 3 3 3-1 3 1 3-3-2 6c0 3-1 7-4 11z"/>
+      <path d="M46 20C38 12 26 8 12 10c4 3 5 7 4 11-6-1-11 1-14 5 7-1 11 1 13 5 4-4 10-4 14-1 3-5 9-6 13-4z"/>
+      <path d="M54 20c8-8 20-12 34-10-4 3-5 7-4 11 6-1 11 1 14 5-7-1-11 1-13 5-4-4-10-4-14-1-3-5-9-6-13-4z"/>
+    </symbol>
+  </svg>
+
+  <header class="topbar" id="topbar">
+    <div class="brand">
+      <img src="assets/main-logo.jpg" alt="">
+      <span>Đố Vui Tranh Biện - Halloween</span>
+    </div>
+    <div class="stats" id="quizStats">
+      <div class="stat"><span class="stat-label">Câu hỏi</span><span class="stat-value" id="statQuestion">1/10</span></div>
+      <div class="stat"><span class="stat-label">Level</span><span class="stat-value" id="statLevel">1/5</span></div>
+      <div class="stat stat-accent"><span class="stat-label">Lượt quay đã đạt</span><span class="stat-value" id="statSpins">0</span></div>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- 1. Màn hình chào -->
+    <section class="screen welcome" id="screen-welcome" aria-labelledby="welcomeTitle">
+      <div class="welcome-logo">
+        <img src="assets/main-logo.jpg" alt="Logo CMCU Debate Club">
+      </div>
+      <div class="welcome-panel card">
+        <img class="sparkle sparkle-a" src="assets/ui/sparkle.webp" alt="">
+        <img class="sparkle sparkle-b" src="assets/ui/sparkle.webp" alt="">
+        <h1 class="title" id="welcomeTitle" aria-label="Đố Vui Tranh Biện - Halloween">Đố Vui Tranh Biện <span>Halloween</span></h1>
+        <ul class="rules">
+          <li><span class="rule-icon">🎃</span><span><b>10 câu hỏi, 5 level</b> — mỗi level 2 câu, độ khó tăng dần.</span></li>
+          <li><span class="rule-icon">🕯️</span><span>Mỗi câu có <b>3 lựa chọn A, B, C</b>. Chọn rồi bấm <b>Chốt đáp án</b> — đã chốt thì không đổi được.</span></li>
+          <li><span class="rule-icon">🦇</span><span>Không giới hạn thời gian. <b>Trả lời sai là dừng</b> cuộc chơi.</span></li>
+          <li><span class="rule-icon">🎁</span><span>Mỗi level hoàn thành được thêm <b>1 lượt quay quà</b>, tối đa 5 lượt.</span></li>
+        </ul>
+        <p class="pause-note" id="pauseNote" role="status" hidden>Quà của sự kiện tạm thời đã hết. Vui lòng chờ BTC một chút nhé!</p>
+        <button class="btn btn-primary btn-xl" id="btnStart" type="button">Bắt đầu</button>
+      </div>
+      <img class="deco-pumpkin deco-left" src="assets/pumpkin-glasses.png" alt="">
+      <img class="deco-pumpkin deco-right" src="assets/pumpkin-clown.png" alt="">
+    </section>
+
+    <!-- 2. Màn hình câu hỏi -->
+    <section class="screen quiz" id="screen-quiz" aria-label="Câu hỏi">
+      <div class="q-rays" aria-hidden="true"><img src="assets/ui/rays.webp" alt=""></div>
+      <div class="quiz-main" id="quizMain">
+        <div class="quiz-stack">
+          <div class="q-meta"><span class="chip" id="qChip">Câu 1</span></div>
+          <div class="question">
+            <div class="hexbox"><div class="hex-inner"><p id="qText"></p></div></div>
+          </div>
+          <div class="answers" id="answers">
+            <button class="answer" type="button" data-index="0"><span class="hexbox"><span class="hex-inner"><span class="ans-letter">A</span><span class="ans-text"></span></span></span></button>
+            <button class="answer" type="button" data-index="1"><span class="hexbox"><span class="hex-inner"><span class="ans-letter">B</span><span class="ans-text"></span></span></span></button>
+            <button class="answer" type="button" data-index="2"><span class="hexbox"><span class="hex-inner"><span class="ans-letter">C</span><span class="ans-text"></span></span></span></button>
+          </div>
+          <div class="quiz-actions">
+            <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+            <button class="btn btn-primary" id="btnLock" type="button" disabled>Chốt đáp án</button>
+            <button class="btn btn-primary" id="btnNext" type="button" hidden>Câu tiếp theo →</button>
+          </div>
+        </div>
+      </div>
+      <aside class="ladder card" aria-label="Các level">
+        <h2>Hành trình</h2>
+        <ol id="ladder"></ol>
+      </aside>
+    </section>
+
+    <!-- 3. Kết quả phần câu hỏi -->
+    <section class="screen center" id="screen-result" aria-labelledby="resultTitle">
+      <div class="card result-card">
+        <img class="result-art" id="resultArt" src="assets/ui/jack.webp" alt="">
+        <h2 id="resultTitle"></h2>
+        <p class="result-sub" id="resultSub"></p>
+        <div class="big-stats">
+          <div class="big-stat"><span class="num"><span id="rCorrect">0</span><small>/10</small></span><span class="lbl">câu đúng</span></div>
+          <div class="big-stat"><span class="num"><span id="rLevels">0</span><small>/5</small></span><span class="lbl">level đã vượt</span></div>
+          <div class="big-stat accent"><span class="num" id="rSpins">0</span><span class="lbl">lượt quay quà</span></div>
+        </div>
+        <button class="btn btn-primary btn-xl" id="btnFromResult" type="button">Đến vòng quay may mắn</button>
+      </div>
+      <img class="deco-pumpkin deco-right small" src="assets/pumpkin-clown.png" alt="">
+    </section>
+
+    <!-- 4. Vòng quay triệu hồi -->
+    <section class="screen gacha" id="screen-gacha" aria-label="Vòng quay may mắn">
+      <div class="summon-stage">
+        <div class="magic-circle" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="wheel" id="wheel" title="Bấm để mở nhanh"></div>
+        <img class="cauldron" src="assets/ui/cauldron.webp" alt="" aria-hidden="true">
+      </div>
+      <div class="gacha-panel card">
+        <h2>Vòng quay may mắn</h2>
+        <div class="spins-left">
+          <span class="spins-num" id="gLeft">0</span>
+          <span class="spins-lbl">lượt còn lại<small>Đã quay <span id="gUsed">0</span>/<span id="gTotal">0</span></small></span>
+        </div>
+        <button class="btn btn-primary btn-xl" id="btnSpin" type="button">Quay</button>
+        <button class="btn btn-primary btn-xl" id="btnToSummary" type="button" hidden>Xem tổng kết</button>
+        <h3>Kết quả các lượt đã quay</h3>
+        <ol class="opened-list" id="openedList"></ol>
+      </div>
+    </section>
+
+    <!-- 5. Tổng kết -->
+    <section class="screen center" id="screen-summary" aria-labelledby="summaryTitle">
+      <div class="card summary-card">
+        <h2 id="summaryTitle">Tổng kết</h2>
+        <div class="big-stats">
+          <div class="big-stat"><span class="num"><span id="sCorrect">0</span><small>/10</small></span><span class="lbl">câu đúng</span></div>
+          <div class="big-stat"><span class="num"><span id="sSpins">0</span><small id="sSpinsTotal">/0</small></span><span class="lbl">lượt đã quay</span></div>
+        </div>
+        <h3 id="sPrizeTitle">Quà nhận được</h3>
+        <ul class="prize-list" id="sPrizes"></ul>
+        <p class="summary-note" id="sNote"></p>
+        <button class="btn btn-btc" id="btnClose" type="button">Đã trao quà — Người chơi tiếp theo</button>
+        <p class="btc-hint">Nút dành cho BTC</p>
+      </div>
+      <img class="deco-pumpkin deco-left small" src="assets/pumpkin-glasses.png" alt="">
+    </section>
+
+    <!-- Lỗi / thông báo cho BTC -->
+    <section class="screen center" id="screen-error" aria-labelledby="errorTitle">
+      <div class="card error-card">
+        <div class="result-icon">⚠️</div>
+        <h2 id="errorTitle"></h2>
+        <div id="errorBody"></div>
+        <div class="error-actions" id="errorActions"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="corner-tools">
+    <button class="icon-btn" id="btnSound" type="button" aria-pressed="true" title="Tắt/bật âm thanh">🔊</button>
+    <button class="icon-btn btc-btn" id="btnBtc" type="button" title="Dành cho BTC">BTC</button>
+  </div>
+
+  <!-- Bảng điều khiển BTC -->
+  <div class="modal" id="btcPanel" hidden role="dialog" aria-modal="true" aria-labelledby="btcTitle">
+    <div class="card modal-card btc-card">
+      <h2 id="btcTitle">Bảng điều khiển BTC</h2>
+      <div class="btc-tabs" role="tablist">
+        <button type="button" class="btc-tab" data-tab="session" role="tab">Phiên &amp; lịch sử</button>
+        <button type="button" class="btc-tab" data-tab="stock" role="tab">Kho quà 🔒</button>
+        <button type="button" class="btc-tab" data-tab="data" role="tab">Sao lưu &amp; sự kiện 🔒</button>
+      </div>
+
+      <section class="btc-pane" data-pane="session">
+        <div id="btcInfo"></div>
+        <div class="btc-actions">
+          <button class="btn btn-primary" type="button" id="btnExportCsv">Xuất lịch sử CSV</button>
+          <button class="btn btn-primary" type="button" id="btnExportJson">Xuất lịch sử JSON</button>
+          <button class="btn btn-danger" type="button" id="btnCancelSession">Hủy phiên hiện tại &amp; tạo phiên mới</button>
+        </div>
+        <p class="btc-warn" id="btcWarn"></p>
+      </section>
+
+      <section class="btc-pane" data-pane="locked">
+        <form class="pin-form" id="pinForm" autocomplete="off">
+          <p>Nhập mã PIN của BTC để xem và quản lý kho quà, sao lưu dữ liệu.</p>
+          <input class="field pin-input" id="pinInput" type="password" inputmode="numeric" maxlength="12" aria-label="Mã PIN">
+          <button class="btn btn-primary" type="submit">Mở khóa</button>
+          <p class="btc-warn" id="pinWarn"></p>
+        </form>
+      </section>
+
+      <section class="btc-pane" data-pane="stock">
+        <div class="table-wrap"><table class="stock-table" id="stockTable"></table></div>
+        <form class="adjust-form" id="adjustForm" autocomplete="off">
+          <h3>Điều chỉnh quà khả dụng</h3>
+          <div class="adjust-row">
+            <select class="field" id="adjPrize" aria-label="Món quà"></select>
+            <input class="field adj-qty" id="adjQty" type="number" min="1" max="1000" step="1" value="1" aria-label="Số lượng">
+            <input class="field adj-reason" id="adjReason" type="text" maxlength="200" placeholder="Lý do (bắt buộc)" aria-label="Lý do">
+          </div>
+          <div class="adjust-row">
+            <button class="btn btn-ghost" type="button" id="btnAdjAdd">＋ Cộng vào kho</button>
+            <button class="btn btn-ghost" type="button" id="btnAdjSub">－ Trừ khỏi kho</button>
+          </div>
+          <p class="muted small">Chỉ thay đổi quà <b>khả dụng</b>. Không trừ được quá số khả dụng và không lấy quà đang giữ chỗ cho người chơi.</p>
+          <p class="btc-warn" id="adjWarn"></p>
+        </form>
+        <h3>Quà đang giữ chỗ của phiên đã đóng</h3>
+        <div id="heldList"></div>
+        <h3>Nhật ký kho <button class="btn btn-ghost btn-sm" type="button" id="btnExportLog">Xuất CSV</button></h3>
+        <ol class="log-list" id="logList"></ol>
+      </section>
+
+      <section class="btc-pane" data-pane="data">
+        <div id="eventInfo"></div>
+        <div class="btc-actions">
+          <button class="btn btn-primary" type="button" id="btnBackup">Tải bản sao lưu sự kiện (JSON)</button>
+          <label class="btn btn-ghost file-btn">Nhập bản sao lưu…<input type="file" id="importFile" accept=".json,application/json"></label>
+          <button class="btn btn-danger" type="button" id="btnResetEvent">Khởi tạo sự kiện mới…</button>
+        </div>
+        <div class="btc-warn" id="dataWarn"></div>
+        <p class="muted small credits">Tài nguyên hình ảnh: sandra-selezen/halloween, ngdathd/AiLaTrieuPhu, shadorki/genshin-impact-wish-simulator (ảnh nền © HoYoverse). Trò chơi phi thương mại, không phải sản phẩm chính thức của Genshin Impact. Chi tiết: <code>assets/ui/CREDITS.md</code>.</p>
+      </section>
+
+      <div class="modal-actions"><button class="btn btn-ghost" type="button" id="btnBtcClose">Đóng</button></div>
+    </div>
+  </div>
+
+  <!-- Hộp xác nhận cho BTC (PIN / lý do / gõ chữ xác nhận) -->
+  <div class="modal ask-modal" id="askDialog" hidden role="dialog" aria-modal="true" aria-labelledby="askTitle">
+    <form class="card modal-card ask-card" id="askForm" autocomplete="off">
+      <h2 id="askTitle"></h2>
+      <div id="askBody"></div>
+      <input class="field" id="askPin" type="password" inputmode="numeric" maxlength="12" placeholder="Mã PIN BTC" aria-label="Mã PIN">
+      <input class="field" id="askReason" type="text" maxlength="200" placeholder="Lý do (bắt buộc)" aria-label="Lý do">
+      <input class="field" id="askTyped" type="text" maxlength="40" aria-label="Gõ chữ xác nhận">
+      <p class="btc-warn" id="askWarn"></p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" id="askCancel">Hủy</button>
+        <button class="btn btn-danger" type="submit" id="askOk">Xác nhận</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Thẻ kết quả sau mỗi lượt quay -->
+  <div class="modal reveal" id="prizeModal" hidden role="dialog" aria-modal="true" aria-labelledby="prizeName">
+    <div class="reveal-card" id="prizeCard">
+      <div class="reveal-rays" aria-hidden="true"></div>
+      <p class="prize-kicker" id="prizeKicker"></p>
+      <div class="prize-icon" id="prizeIcon"></div>
+      <h2 class="prize-name" id="prizeName"></h2>
+      <p class="prize-msg" id="prizeMsg"></p>
+      <p class="prize-soldout" id="prizeSoldout" hidden>Quà của sự kiện đã được phát hết.</p>
+      <button class="btn btn-primary" type="button" id="prizeOk">Tiếp tục</button>
+    </div>
+  </div>
+
+  <!-- Khóa tab phụ -->
+  <div class="modal lock-overlay" id="lockOverlay" hidden role="alertdialog" aria-modal="true" aria-labelledby="lockTitle">
+    <div class="card modal-card">
+      <div class="result-icon">🔒</div>
+      <h2 id="lockTitle">Game đang mở ở tab khác</h2>
+      <p>Trò chơi chỉ được xử lý ở <b>một</b> tab/cửa sổ để tránh sai lệch kết quả. Hãy dùng tab đang mở game và đóng tab này.</p>
+      <p class="muted">Nếu tab kia đã đóng, tab này sẽ tự mở khóa sau vài giây.</p>
+      <div class="modal-actions"><button class="btn btn-ghost" type="button" id="btnTakeover">BTC: dùng tab này thay thế</button></div>
+    </div>
+  </div>
+
+  <!-- Hiệu ứng triệu hồi & chuyển cảnh -->
+  <div class="summon-fx" id="summonFx" aria-hidden="true"><span class="streak"></span><span class="flash"></span></div>
+  <div class="scene-wipe" id="sceneWipe" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
+  <script src="js/config.js"></script>
+  <script src="js/questions-data.js"></script>
+  <script src="js/game-logic.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/tab-lock.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/wheel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
